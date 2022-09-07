@@ -1,0 +1,9 @@
+updates:
+{{- range $pset := $.Vars.routing_policy.prefix_set }}
+- path: /routing-policy/prefix-set[name={{ $pset.name }}]
+  value:
+  - name: {{ $pset.name }}
+    prefix:
+    - ip-prefix: {{ $pset.prefix }}
+      mask-length-range: {{ $pset.mask_length_range }}
+{{- end }}

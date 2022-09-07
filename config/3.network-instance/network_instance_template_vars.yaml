@@ -1,0 +1,765 @@
+clab-srx2022-super-spine1:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - "ethernet-1/3.0"
+      - "ethernet-1/4.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65001"
+          group:
+          - admin_state: enable
+            group_name: "spines"
+            timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              max_paths-level_1: "32"
+              max_paths-level_2: "32"
+          neighbor:
+          - admin_state: enable
+            export_policy: export-loopbacks
+            failure_detection:
+              enable_bfd: "true"
+              fast_failover: "true"
+            peer_address: "2.1.1.1" # key TODO:
+            peer_as: "65010" # spine pod1
+            peer_group: "spines"
+          - admin_state: enable
+            export_policy: export-loopbacks
+            failure_detection:
+              enable_bfd: "true"
+              fast_failover: "true"
+            peer_address: "2.1.2.1" # key TODO:
+            peer_as: "65010" # spine pod1
+            peer_group: "spines"
+          - admin_state: enable
+            export_policy: export-loopbacks
+            failure_detection:
+              enable_bfd: "true"
+              fast_failover: "true"
+            peer_address: "2.1.3.1" # key TODO:
+            peer_as: "65020" # spine pod2
+            peer_group: "spines"
+          - admin_state: enable
+            export_policy: export-loopbacks
+            failure_detection:
+              enable_bfd: "true"
+              fast_failover: "true"
+            peer_address: "2.1.4.1" # key TODO:
+            peer_as: "65020" # spine pod2
+            peer_group: "spines"
+          router_id: "30.1.1.1"
+      router_id: "30.1.1.1"
+      type: default
+
+clab-srx2022-super-spine2:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - "ethernet-1/3.0"
+      - "ethernet-1/4.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65001"
+          group:
+          - admin_state: enable
+            group_name: "spines"
+            timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+          - admin_state: enable
+            export_policy: export-loopbacks
+            failure_detection:
+              enable_bfd: "true"
+              fast_failover: "true"
+            peer_address: "2.2.1.1" # key TODO:
+            peer_as: "65010" # spine pod1
+            peer_group: "spines"
+          - admin_state: enable
+            export_policy: export-loopbacks
+            failure_detection:
+              enable_bfd: "true"
+              fast_failover: "true"
+            peer_address: "2.2.2.1" # key TODO:
+            peer_as: "65010" # spine pod1
+            peer_group: "spines"
+          - admin_state: enable
+            export_policy: export-loopbacks
+            failure_detection:
+              enable_bfd: "true"
+              fast_failover: "true"
+            peer_address: "2.2.3.1" # key TODO:
+            peer_as: "65020" # spine pod2
+            peer_group: "spines"
+          - admin_state: enable
+            export_policy: export-loopbacks
+            failure_detection:
+              enable_bfd: "true"
+              fast_failover: "true"
+            peer_address: "2.2.4.1" # key TODO:
+            peer_as: "65020" # spine pod2
+            peer_group: "spines"
+          router_id: "30.2.1.1"
+      router_id: "30.2.1.1"
+      type: default
+
+clab-srx2022-spine1-1:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - "ethernet-1/3.0"
+      - "ethernet-1/4.0"
+      - "ethernet-1/5.0"
+      - "ethernet-1/6.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65010"
+          group:
+            - admin_state: enable
+              group_name: "super-spines"
+              timer_connect_retry: 10
+            - admin_state: enable
+              group_name: "leaves"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "2.1.1.0"
+              peer_as: "65001"
+              peer_group: "super-spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "2.2.1.0"
+              peer_as: "65001"
+              peer_group: "super-spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.1.1.0"
+              peer_as: "65011"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.1.2.0"
+              peer_as: "65012"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.1.3.0"
+              peer_as: "65013"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.1.4.0"
+              peer_as: "65014"
+              peer_group: "leaves"
+          router_id: "20.1.1.1"
+      router_id: "20.1.1.1"
+      type: default
+
+clab-srx2022-spine1-2:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - "ethernet-1/3.0"
+      - "ethernet-1/4.0"
+      - "ethernet-1/5.0"
+      - "ethernet-1/6.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65010"
+          group:
+            - admin_state: enable
+              group_name: "super-spines"
+              timer_connect_retry: 10
+            - admin_state: enable
+              group_name: "leaves"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "2.1.2.0"
+              peer_as: "65001"
+              peer_group: "super-spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "2.2.2.0"
+              peer_as: "65001"
+              peer_group: "super-spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.2.1.0"
+              peer_as: "65011"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.2.2.0"
+              peer_as: "65012"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.2.3.0"
+              peer_as: "65013"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.2.4.0"
+              peer_as: "65014"
+              peer_group: "leaves"
+          router_id: "20.2.1.1"
+      router_id: "20.2.1.1"
+      type: default
+
+clab-srx2022-spine2-1:     
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - "ethernet-1/3.0"
+      - "ethernet-1/4.0"
+      - "ethernet-1/5.0"
+      - "ethernet-1/6.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65020"
+          group:
+            - admin_state: enable
+              group_name: "super-spines"
+              timer_connect_retry: 10
+            - admin_state: enable
+              group_name: "leaves"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "2.1.3.0"
+              peer_as: "65001"
+              peer_group: "super-spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "2.2.3.0"
+              peer_as: "65001"
+              peer_group: "super-spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.3.5.0"
+              peer_as: "65025"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.3.6.0"
+              peer_as: "65026"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.3.7.0"
+              peer_as: "65027"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.3.8.0"
+              peer_as: "65028"
+              peer_group: "leaves"
+          router_id: "20.3.1.1"
+      router_id: "20.3.1.1"
+      type: default
+
+clab-srx2022-spine2-2:       
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - "ethernet-1/3.0"
+      - "ethernet-1/4.0"
+      - "ethernet-1/5.0"
+      - "ethernet-1/6.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65020"
+          group:
+            - admin_state: enable
+              group_name: "super-spines"
+              timer_connect_retry: 10
+            - admin_state: enable
+              group_name: "leaves"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "2.1.4.0"
+              peer_as: "65001"
+              peer_group: "super-spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "2.2.4.0"
+              peer_as: "65001"
+              peer_group: "super-spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.4.5.0"
+              peer_as: "65025"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.4.6.0"
+              peer_as: "65026"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.4.7.0"
+              peer_as: "65027"
+              peer_group: "leaves"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.4.8.0"
+              peer_as: "65028"
+              peer_group: "leaves"
+          router_id: "20.4.1.1"
+      router_id: "20.4.1.1"
+      type: default
+
+clab-srx2022-leaf1-1:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65011"
+          group:
+            - admin_state: enable
+              group_name: "spines"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.1.1.1"
+              peer_as: "65010"
+              peer_group: "spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.2.1.1"
+              peer_as: "65010"
+              peer_group: "spines"
+          router_id: "10.1.1.1"
+      router_id: "10.1.1.1"
+      type: default
+
+clab-srx2022-leaf1-2:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65012"
+          group:
+            - admin_state: enable
+              group_name: "spines"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.1.2.1"
+              peer_as: "65010"
+              peer_group: "spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.2.2.1"
+              peer_as: "65010"
+              peer_group: "spines"
+          router_id: "10.2.1.1"
+      router_id: "10.2.1.1"
+      type: default
+
+clab-srx2022-leaf1-3:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65013"
+          group:
+            - admin_state: enable
+              group_name: "spines"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.1.3.1"
+              peer_as: "65010"
+              peer_group: "spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.2.3.1"
+              peer_as: "65010"
+              peer_group: "spines"
+          router_id: "10.3.1.1"
+      router_id: "10.3.1.1"
+      type: default
+
+clab-srx2022-leaf1-4:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65014"
+          group:
+            - admin_state: enable
+              group_name: "spines"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.1.4.1"
+              peer_as: "65010"
+              peer_group: "spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.2.4.1"
+              peer_as: "65010"
+              peer_group: "spines"
+          router_id: "10.4.1.1"
+      router_id: "10.4.1.1"
+      type: default
+        
+clab-srx2022-leaf2-1:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65025"
+          group:
+            - admin_state: enable
+              group_name: "spines"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.3.5.1"
+              peer_as: "65020"
+              peer_group: "spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.4.5.1"
+              peer_as: "65020"
+              peer_group: "spines"
+          router_id: "10.5.1.1"
+      router_id: "10.5.1.1"
+      type: default
+        
+clab-srx2022-leaf2-2:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65026"
+          group:
+            - admin_state: enable
+              group_name: "spines"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.3.6.1"
+              peer_as: "65020"
+              peer_group: "spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.4.6.1"
+              peer_as: "65020"
+              peer_group: "spines"
+          router_id: "10.6.1.1"
+      router_id: "10.6.1.1"
+      type: default
+    
+clab-srx2022-leaf2-3:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65027"
+          group:
+            - admin_state: enable
+              group_name: "spines"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.3.7.1"
+              peer_as: "65020"
+              peer_group: "spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.4.7.1"
+              peer_as: "65020"
+              peer_group: "spines"
+          router_id: "10.7.1.1"
+      router_id: "10.7.1.1"
+      type: default
+
+clab-srx2022-leaf2-4:
+  network_instance:
+    - name: "default"
+      admin_state: enable
+      interfaces:
+      - "ethernet-1/1.0"
+      - "ethernet-1/2.0"
+      - lo0.0
+      protocols:
+        bgp:
+          admin_state: enable
+          autonomous_system: "65028"
+          group:
+            - admin_state: enable
+              group_name: "spines"
+              timer_connect_retry: 10
+          ipv4_unicast:
+            multipath:
+              imax_paths_level_1: "32"
+              imax_paths_level_2: "32"
+          neighbor:
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.3.8.1"
+              peer_as: "65020"
+              peer_group: "spines"
+            - admin_state: enable
+              export_policy: export-loopbacks
+              failure_detection:
+                enable_bfd: "true"
+                fast_failover: "true"
+              peer_address: "1.4.8.1"
+              peer_as: "65020"
+              peer_group: "spines"
+          router_id: "10.8.1.1"
+      router_id: "10.8.1.1"
+      type: default

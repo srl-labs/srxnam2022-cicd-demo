@@ -1,0 +1,32 @@
+updates:
+{{- $target := index .Vars .TargetName -}}
+{{- range $netins := $target.network_instance }}
+  - path: "/network-instance[name={{ $netins.name }}]"
+    encoding: json_ietf
+    value: 
+      admin-state: {{ $netins.admin_state | default "disable" }}
+      description: {{ $netins.description | default $netins.name }}
+      type: {{ $netins.type | default "default" }}
+      {{- if $netins.path_mtu_disovery }}
+      mtu:
+        path-mtu-discovery: {{ $netins.path_mtu_disovery }}
+      {{- end }}
+      {{- if $netins.router_id }}
+      router-id: {{ $netins.router_id }}
+      {{- end }}
+      {{ $interfaces := $netins.interfaces }}
+      {{- if ne (len $interfaces) 0 }}
+      interface:
+        {{- range $interface := $interfaces }}
+        - name: {{ $interface }}
+        {{- end }}
+      {{- end }}
+      {{- if $netins.vxlan_interface }}
+      vxlan-interface: {{ $netins.vxlan_interface }} 
+      {{- end }}
+      {{- if $netins.ip_forwarding }}
+      ip-forwarding:
+        receive-ipv4-check: {{ $netins.ip_forwarding.receive_ipv4_check | default false }} 
+        receive-ipv6-check: {{ $netins.ip_forwarding.receive_ipv6_check | default false }} 
+      {{- end }}
+{{- end }}

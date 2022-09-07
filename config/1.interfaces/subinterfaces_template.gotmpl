@@ -1,0 +1,60 @@
+updates:
+{{- $target := index .Vars .TargetName -}}
+{{- range $interface := $target.interfaces }}
+  {{- range $idx, $subinterface := $interface.subinterface }}
+  - path: "/interface[name={{ $interface.name }}]/subinterface[index={{ $idx }}]"
+    encoding: "json_ietf"
+    value: 
+      admin-state: {{ $subinterface.admin_state | default "disable" }}
+      {{- if $subinterface.type }}
+      type: {{ $subinterface.type | default "" }}
+      {{- end }}
+      {{- if $subinterface.description }}
+      description: {{ $subinterface.description | default "" }}
+      {{- end }}
+      {{- if $subinterface.ip_mtu }}
+      ip-mtu: {{ $subinterface.ip_mtu }}
+      {{- end }}
+      {{- if $subinterface.ipv4_address }}
+      ipv4:
+        address:
+          - ip-prefix: {{ $subinterface.ipv4_address }}
+      {{- end }}
+      {{- if $subinterface.ipv6_address }}
+      ipv6:
+        address:
+          - ip-prefix: {{ $subinterface.ipv6_address }}
+      {{- end }}
+      {{- if $subinterface.vlan_id }}
+      vlan:
+        encap:
+          single-tagged:
+            vlan-id: {{ $subinterface.ipv6_address }}
+      {{- else if $subinterface.untagged }}
+      vlan:
+        encap:
+          untagged: {}
+      {{- end }}
+      {{- if $acl := $subinterface.acl }}
+      acl:
+        {{- if $input := $acl.input }}
+        input:
+          {{- if $input.ipv4_filter }}
+          ipv4-filter: {{ $input.ipv4_filter }}
+          {{- end }}
+          {{- if $input.ipv6_filter }}
+          ipv6-filter: {{ $input.ipv6_filter }}
+        {{- end }}
+        {{- end }}
+        {{- if $output := $acl.output }}
+        output:
+          {{- if $output.ipv4_filter }}
+          ipv4-filter: {{ $output.ipv4_filter }}
+          {{- end }}
+          {{- if $output.ipv6_filter }}
+          ipv6-filter: {{ $output.ipv6_filter }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+{{- end }}
