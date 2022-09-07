@@ -21,6 +21,14 @@ jobs:
     steps:
       - run: bash -c "$(curl -sL https://get-gnmic.kmrd.dev)"
   
+  cleanup_lab:
+    runs-on: 
+      - self-hosted
+      - kss
+    steps:
+      - run: |
+          sudo clab ins --name srx2022 --format json | jq -r .[].name | xargs -n1 sudo docker rm -f
+          
   deploy_lab:
     runs-on: 
       - self-hosted
