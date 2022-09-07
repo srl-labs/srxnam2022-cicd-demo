@@ -71,7 +71,9 @@ printf "\n"
 printf "$(date): Waiting 60s for BGP sessions to be established\n"
 sleep 60
 
-for node in $(docker ps -f label=clab-node-kind=srl -f label=containerlab=srx2022 -f label=clab-node-group=spines --format {{.Names}})
+expected_num_neighbors=$(expr $(yq e '.super_spines.num' srx2022.clab_vars.yaml) + $(yq e '.pods.leaves.num' srx2022.clab_vars.yaml))
+echo "$(date): expecting $expected_num_neighbors neighbors per spine..."
+for node in $(docker ps -f label=clab-node-kind=srl -f label=containerlab=srx2022 -f label=clab-node-group=spine --format {{.Names}})
 do
 num_neighbors=$(
       gnmic -a $node \
@@ -83,9 +85,9 @@ num_neighbors=$(
             get \
             --path /network-instance[name=default]/protocols/bgp/neighbor/ipv4-unicast/oper-state | grep neighbor | wc -l
             )
-      if [ "$num_neighbors" -ne "6" ]
+      if [ "$num_neighbors" -ne "$expected_num_neighbors" ]
       then
-        printf "unexpected number of neighbors for node $node : $num_neighbors (ノ ゜Д゜)ノ ︵ ┻━┻\n"
+        printf "unexpected number of neighbors for node $node, expected $expected_num_neighbors, got $num_neighbors (ノ ゜Д゜)ノ ︵ ┻━┻\n"
         exit 1
       fi
       printf "$(date): \\U1F44D $node has $num_neighbors BGP neighbors \n"

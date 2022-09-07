@@ -23,6 +23,7 @@ topology:
         GNMIC_CLUSTERING_SERVICE_ADDRESS: clab-srx2022-gnmic1
         GNMIC_OUTPUTS_OUTPUT1_LISTEN: clab-srx2022-gnmic1:9804
       cmd: '--config /app/gnmic.yaml subscribe'
+      group: 9
     
     gnmic2:
       kind: linux
@@ -39,6 +40,7 @@ topology:
         GNMIC_CLUSTERING_SERVICE_ADDRESS: clab-srx2022-gnmic2
         GNMIC_OUTPUTS_OUTPUT1_LISTEN: clab-srx2022-gnmic2:9805
       cmd: '--config /app/gnmic.yaml subscribe'
+      group: 9
 
     gnmic3:
       kind: linux
@@ -55,6 +57,7 @@ topology:
         GNMIC_CLUSTERING_SERVICE_ADDRESS: clab-srx2022-gnmic3
         GNMIC_OUTPUTS_OUTPUT1_LISTEN: clab-srx2022-gnmic3:9806
       cmd: '--config /app/gnmic.yaml subscribe'
+      group: 9
 
     consul-agent:
       kind: linux
@@ -63,7 +66,8 @@ topology:
         - 8500:8500
         - 8600:8600/udp
       cmd: 'agent -server -ui -bind=127.0.0.1 -node=server-1 -bootstrap-expect=1 -client=0.0.0.0'
-    
+      group: 9
+
     prometheus:
       kind: linux
       image: prom/prometheus:latest
@@ -77,6 +81,7 @@ topology:
         --web.console.libraries=/usr/share/prometheus/console_libraries
         --web.console.templates=/usr/share/prometheus/consoles
         --log.level=debug
+      group: 10
 
     grafana:
       kind: linux
@@ -87,12 +92,13 @@ topology:
         - grafana/dashboards/:/var/lib/grafana/dashboards
       ports:
         - 3000:3000
+      group: 10
 
     # {{ $.super_spines.prefix }}
 {{- range $ssIndex := seq 1 $.super_spines.num }}
     {{ $.super_spines.prefix }}{{ $ssIndex }}:
       type: {{ $.super_spines.type }} 
-      group: super-spines
+      group: superspine
 {{- end }}
 
 {{- range $podIndex := seq 1 $.pods.num }}
@@ -100,13 +106,20 @@ topology:
  {{- range $spineIndex := seq 1 $.pods.spines.num }}
     {{ $.pods.spines.prefix }}{{ $podIndex }}-{{ $spineIndex }}:
       type: {{ $.pods.spines.type }}
-      group: spines
+      group: spine
   {{- end }}
     # pod {{ $podIndex }} {{ $.pods.leaves.prefix }}
   {{- range $leafIndex := seq 1 $.pods.leaves.num }}
     {{ $.pods.leaves.prefix }}{{ $podIndex }}-{{ $leafIndex }}:
       type: {{ $.pods.leaves.type }}
-      group: leafs
+      group: leaf
+  {{- end }}
+    # pod {{ $podIndex }} clients
+  {{- range $clientIndex := math.Seq 1 $.pods.leaves.num 2 }}
+    client{{ $podIndex }}-{{ $clientIndex }}:
+      kind: linux
+      image: ghcr.io/hellt/network-multitool
+      group: server
   {{- end }}
 {{- end }}
 
@@ -115,7 +128,9 @@ topology:
     # {{ $.super_spines.prefix }}{{ $ssIndex }}
   {{- range $podIndex := seq 1 $.pods.num }}
     {{- range $spineIndex := seq 1 $.pods.spines.num }}
-    - endpoints: ["{{ $.super_spines.prefix }}{{ $ssIndex }}:e1-{{ add (mul (add $podIndex -1) $.pods.spines.num) $spineIndex }}", "{{ $.pods.spines.prefix }}{{ $podIndex }}-{{ $spineIndex }}:e1-{{ $ssIndex }}"]
+    - endpoints: 
+      - "{{ $.super_spines.prefix }}{{ $ssIndex }}:e1-{{ add (mul (add $podIndex -1) $.pods.spines.num) $spineIndex }}"
+      - "{{ $.pods.spines.prefix }}{{ $podIndex }}-{{ $spineIndex }}:e1-{{ $ssIndex }}"
     {{- end }}
   {{- end }}
 {{- end }}
@@ -136,7 +151,14 @@ Those interfaces number starts at e-1/49.
   {{- range $spineIndex := seq 1 $.pods.spines.num }}
     # pod {{ $podIndex }} {{ $.pods.spines.prefix }} {{ $spineIndex }}
     {{- range $leafIndex := seq 1 $.pods.leaves.num }}
-    - endpoints: ["{{ $.pods.spines.prefix }}{{ $podIndex }}-{{ $spineIndex }}:e1-{{ add $.pods.spines.num $leafIndex }}", "{{ $.pods.leaves.prefix }}{{ $podIndex }}-{{ $leafIndex }}:e1-{{ add $spineIndex $leafPortOffset }}"]
+    - endpoints: 
+      - "{{ $.pods.spines.prefix }}{{ $podIndex }}-{{ $spineIndex }}:e1-{{ add $.pods.spines.num $leafIndex }}"
+      - "{{ $.pods.leaves.prefix }}{{ $podIndex }}-{{ $leafIndex }}:e1-{{ add $spineIndex $leafPortOffset }}"
     {{- end }}
+  {{- end }}
+  {{- range $leafIndex := seq 1 $.pods.leaves.num }}
+    - endpoints:
+      - "client{{ $podIndex }}-{{ if eq (math.Rem $leafIndex 2) 1 }}{{ $leafIndex }}{{ else }}{{ math.Sub $leafIndex 1 }}{{- end }}:eth{{ if eq (math.Rem $leafIndex 2) 1 }}1{{ else }}2{{- end}}"
+      - "{{ $.pods.leaves.prefix }}{{ $podIndex }}-{{ $leafIndex }}:e1-48"
   {{- end }}
 {{- end }}

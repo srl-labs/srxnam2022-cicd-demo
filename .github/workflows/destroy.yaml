@@ -1,0 +1,13 @@
+name: destroy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  remove_topo:
+    runs-on: 
+      - self-hosted
+      - kss
+    steps:
+      - run: |
+          sudo clab ins --name srx2022 --format json | jq -r .[].name | xargs -n1 sudo docker rm -f
