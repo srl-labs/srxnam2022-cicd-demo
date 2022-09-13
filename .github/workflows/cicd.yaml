@@ -20,17 +20,6 @@ jobs:
       - kss
     steps:
       - run: bash -c "$(curl -sL https://get-gnmic.kmrd.dev)"
-  
-  # cleanup_lab:
-  #   runs-on: 
-  #     - self-hosted
-  #     - kss
-  #   needs:
-  #     - install_containerlab
-  #     - install_gnmic
-  #   steps:
-  #     - run: |
-  #         sudo clab ins --name srx2022 --format json | jq -r .[].name | xargs -n1 sudo docker rm -f
 
   deploy_lab:
     runs-on: 
@@ -39,7 +28,7 @@ jobs:
     needs:
       - install_containerlab
       - install_gnmic
-      - cleanup_lab
+      #- cleanup_lab
     steps:
       - uses: actions/checkout@v2
       - run: sudo clab deploy -t srx2022.clab.gotmpl --reconfigure
