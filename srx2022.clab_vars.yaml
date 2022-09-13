@@ -8,7 +8,7 @@ super_spines:
 
 pods:
   # number of pods
-  num: 2
+  num: 1
   spines:
     # SRL spine type
     type: ixrd2
