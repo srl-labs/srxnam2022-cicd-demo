@@ -39,7 +39,7 @@ jobs:
     needs:
       - install_containerlab
       - install_gnmic
-      - cleanup_lab
+      #- cleanup_lab
     steps:
       - uses: actions/checkout@v2
       - run: sudo clab deploy -t srx2022.clab.gotmpl --reconfigure
